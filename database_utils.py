@@ -37,3 +37,7 @@ class DatabaseConnector:
         - table_name: Name of the table to upload the DataFrame to.
         """
         df.to_sql(name=table_name, con=self.engine, if_exists='append', index=False)
+        
+if __name__ == "__main__":
+    db_connector = DatabaseConnector()
+print(db_connector.list_db_tables())
