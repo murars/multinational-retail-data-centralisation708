@@ -23,21 +23,24 @@ class DatabaseConnector:
         engine = create_engine(db_url)
         return engine
     
-    def list_db_tables(self):
-        """List all tables in the database."""
-        inspector = inspect(self.engine)
-        return inspector.get_table_names()
+    # def list_db_tables(self):
+    #     """List all tables in the database."""
+    #     inspector = inspect(self.engine)
+    #     return inspector.get_table_names()
     
-    def upload_to_db(self, df, table_name):
-        """
-        Uploads a Pandas DataFrame to a specified table in the database.
-
-        Parameters:
-        - df: Pandas DataFrame to upload.
-        - table_name: Name of the table to upload the DataFrame to.
-        """
-        df.to_sql(name=table_name, con=self.engine, if_exists='append', index=False)
+    def upload_to_db(self, df, table_name, target_db_creds_path='target_db_creds.yaml'):
+        """Uploads a Pandas DataFrame to a specified table in the target database."""
+        # Read credentials for the target database
+        target_creds = self.read_db_creds(target_db_creds_path)
         
-if __name__ == "__main__":
-    db_connector = DatabaseConnector()
-print(db_connector.list_db_tables())
+        # Initialize connection to the target database
+        target_db_url = f"postgresql://{target_creds['RDS_USER']}:{target_creds['RDS_PASSWORD']}@{target_creds['RDS_HOST']}:{target_creds['RDS_PORT']}/{target_creds['RDS_DATABASE']}"
+        target_engine = create_engine(target_db_url)
+        
+        # Upload the DataFrame to the specified table in the target database
+        df.to_sql(name=table_name, con=target_engine, if_exists='append', index=False)
+
+    # if __name__ == "__main__":
+    # db_connector = DatabaseConnector()
+    # tables = db_connector.list_db_tables()
+    # print("Available tables in the database:", tables)
