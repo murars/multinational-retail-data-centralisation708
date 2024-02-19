@@ -32,5 +32,31 @@ class DataCleaning:
         # Email validation step could be added here if necessary
 
         # Additional data cleaning steps can be added here based on specific needs
-
+    @staticmethod
+    def clean_card_data(df):
+        # Implement cleaning logic here
+        df.replace(["NULL", "Null", "null"], np.nan, inplace=True)
+        df.fillna('DefaultValue', inplace=True)
+        
+        # Example: Replace '?' in card_number with 'Unknown'
+        df['card_number'] = df['card_number'].astype(str)
+        df['card_number'] = df['card_number'].apply(lambda x: 'Unknown' if '?' in x else x)
+        # Safe conversion to numeric, with error handling - python urged us like below;
+        #FutureWarning: errors='ignore' is deprecated and will raise in a future version. 
+        for c in ['card_number', 'another_column']:
+            try:
+                df[c] = pd.to_numeric(df[c])
+            except ValueError:
+                # Handle the exception, for example, by logging or using a default value
+                # This could also be a place to mark these rows for review or removal
+                print(f"Non-numeric values found in {c}, replacing with NaN")
+                df[c] = pd.to_numeric(df[c], errors='coerce')  # Convert problematic values to NaN
+                 
+        # Convert expiry_date to datetime, assuming format is MM/YY
+        df['expiry_date'] = pd.to_datetime(df['expiry_date'], format='%m/%y', errors='coerce')
+        
+        # Convert date_payment_confirmed to datetime
+        df['date_payment_confirmed'] = pd.to_datetime(df['date_payment_confirmed'], errors='coerce')
+        
         return df
+        
