@@ -19,14 +19,14 @@ def process_database_data():
     
     # Step 2: Extract data
     data_extractor = DataExtractor(db_connector)
-    extracted_data = data_extractor.read_rds_table('legacy_store_details')
+    extracted_data = data_extractor.read_rds_table('legacy_users')
     
     # Step 3: Clean data
     data_cleaning = DataCleaning()
     cleaned_data = data_cleaning.clean_user_data(extracted_data)
     
     # Step 4: Upload cleaned data
-    db_connector.upload_to_db(cleaned_data, 'dim_store_details')
+    db_connector.upload_to_db(cleaned_data, 'dim_users')
 
 def process_pdf_data(pdf_link):
     # Initialize DataExtractor with the link to the PDF
@@ -42,6 +42,19 @@ def process_pdf_data(pdf_link):
     db_connector = DatabaseConnector()
     db_connector.upload_to_db(cleaned_data, 'dim_card_details')
 
+def process_store_data():
+    # Step 1: Extract store data
+    data_extractor = DataExtractor()
+    store_data = data_extractor.retrieve_stores_data()
+
+    # Step 2: Clean store data
+    data_cleaning = DataCleaning()
+    cleaned_store_data = data_cleaning.clean_store_data(store_data)
+
+    # Step 3: Upload cleaned data to the database
+    db_connector = DatabaseConnector()
+    db_connector.upload_to_db(cleaned_store_data, 'dim_store_details')
+
 def main():
     pdf_link = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"  # Modular PDF link definition
     # Determine which task to run based on command-line arguments
@@ -49,13 +62,19 @@ def main():
         task = sys.argv[1]
         if task == "database":
             process_database_data()
-        elif task == "pdf" and len(sys.argv) > 2:
-            process_pdf_data(sys.argv[2])  # Use the PDF link provided via command line
+        elif task == "pdf" : 
+            # Use the provided PDF link if specified, else use the default
+            link = sys.argv[2] if len(sys.argv) > 2 else pdf_link
+            process_pdf_data(link)
+        elif task == "api":
+            process_store_data()
         else:
-            print("PDF link not provided.")
+            print(f"Unrecognized task '{task}'.")  # Updated to handle unrecognized tasks
     else:
         # Default action if no task is specified
         print("No task specified. Running the PDF process with default link.")
-        process_pdf_data(pdf_link)   
+        process_pdf_data(pdf_link)
 if __name__ == "__main__":
     main()
+    
+ 
