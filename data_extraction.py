@@ -3,6 +3,8 @@ import numpy as np
 import requests
 from database_utils import DatabaseConnector  # Import the DatabaseConnector class
 from tabula import read_pdf
+import boto3
+from io import StringIO
 
 """ 
  This class will work as a utility class, in it you will be creating methods that help extract data from different data sources.
@@ -54,3 +56,19 @@ class DataExtractor:
                 stores_data.append(store_details)
 
         return pd.DataFrame(stores_data)
+    
+    def extract_from_s3(self, s3_uri):
+        s3 = boto3.client('s3')
+        
+        # Dynamically parse the s3_uri to extract bucket name and object key
+        uri_parts = s3_uri.replace("s3://", "").split("/", 1)
+        bucket_name, object_key = uri_parts[0], uri_parts[1]
+        
+        # Now using the dynamically determined bucket_name and object_key
+        response = s3.get_object(Bucket=bucket_name, Key=object_key)
+        csv_content = response['Body'].read().decode('utf-8')
+        
+        # Convert the CSV content to a pandas DataFrame
+        df = pd.read_csv(StringIO(csv_content))
+        
+        return df

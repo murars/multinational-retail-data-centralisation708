@@ -53,10 +53,29 @@ def process_store_data():
 
     # Step 3: Upload cleaned data to the database
     db_connector = DatabaseConnector()
-    db_connector.upload_to_db(cleaned_store_data, 'dim_store_details')
-
+    db_connector.upload_to_db(cleaned_store_data, 'dim_store_details')   
+    
+def process_product_data(s3_uri): 
+    data_extractor = DataExtractor()
+    # Pass the s3_uri to the method; no need to pass df
+    df = data_extractor.extract_from_s3(s3_uri)
+    
+    # Instantiate the DataCleaning class
+    data_cleaner = DataCleaning()
+    
+    # First, clean the products data in general
+    df = data_cleaner.clean_products_data(df)
+    
+    # Then, convert product weights to a consistent unit
+    df = data_cleaner.convert_product_weights(df)
+    
+    # Finally, upload the cleaned and transformed data to your database
+    db_connector = DatabaseConnector()
+    db_connector.upload_to_db(df, 'dim_products')
+    
 def main():
     pdf_link = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"  # Modular PDF link definition
+    s3_uri = "s3://data-handling-public/products.csv"
     # Determine which task to run based on command-line arguments
     if len(sys.argv) > 1:
         task = sys.argv[1]
@@ -68,12 +87,13 @@ def main():
             process_pdf_data(link)
         elif task == "api":
             process_store_data()
+        elif task == "csv":
+            process_product_data(s3_uri)
         else:
             print(f"Unrecognized task '{task}'.")  # Updated to handle unrecognized tasks
     else:
-        # Default action if no task is specified
-        print("No task specified. Running the PDF process with default link.")
-        process_pdf_data(pdf_link)
+        print("Available tasks: database, pdf, api, csv")
+        sys.exit(1)  # Terminate the program with an error status
 if __name__ == "__main__":
     main()
     
