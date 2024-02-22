@@ -4,7 +4,7 @@ import requests
 from database_utils import DatabaseConnector  # Import the DatabaseConnector class
 from tabula import read_pdf
 import boto3
-from io import StringIO
+from io import StringIO, BytesIO
 
 """ 
  This class will work as a utility class, in it you will be creating methods that help extract data from different data sources.
@@ -33,7 +33,7 @@ class DataExtractor:
         # Combine all tables into one DataFrame
         df = pd.concat(dfs, ignore_index=True) if len(dfs) > 1 else dfs[0]
         return df
-    
+    # pdf sayfalardan olustugundan tabulayla okuyup sayfalari concotanate etmeliyiz. bunu not al.
     def list_number_of_stores(self):
         headers = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
         endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
@@ -72,3 +72,13 @@ class DataExtractor:
         df = pd.read_csv(StringIO(csv_content))
         
         return df
+    
+    def extract_json_from_s3(self,json_s3_uri):
+        # Directly read JSON content into a pandas DataFrame
+        # yukardaki gibi bucket_name vs kullanacak yapabilirdin ama https:// verildigi icin ugrasmadik.
+        # birde yukaridaki yontemler bunu parcalayamazsin csv deki link formati farkli.bunu notlarina
+        # ekle 
+        df = pd.read_json(json_s3_uri)
+        return df
+
+        

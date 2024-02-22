@@ -130,6 +130,9 @@ class DataCleaning:
         # Fill NaN values with "Default Value"
         df.fillna(value="Default Value", inplace=True)  
         return df 
-        
     
-    
+    @staticmethod
+    def clean_date_events(df):
+        df.replace('NULL', np.nan, inplace=True)
+        df.fillna(value="Default Value", inplace=True)
+        return df 
