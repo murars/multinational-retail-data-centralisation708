@@ -81,6 +81,18 @@ def process_orders_data():
     cleaned_data = data_cleaning.clean_orders_data(extracted_data)
     db_connector.upload_to_db(cleaned_data, 'orders_table')
     
+def process_date_evets_data():
+    json_s3_uri = "https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json"
+    data_extractor = DataExtractor()
+    df = data_extractor.extract_json_from_s3(json_s3_uri)  # Extract JSON data into a DataFrame
+    # Instantiate the DataCleaning class
+    data_cleaner = DataCleaning()
+    # First, clean the products data in general
+    df = data_cleaner.clean_date_events(df)
+    # Finally, upload the cleaned and transformed data to your database
+    db_connector = DatabaseConnector()
+    db_connector.upload_to_db(df, 'dim_date_times')
+   
 def main():
     pdf_link = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"  # Modular PDF link definition
     s3_uri = "s3://data-handling-public/products.csv"
@@ -99,6 +111,8 @@ def main():
             process_product_data(s3_uri)
         elif task == "process_orders_data":
             process_orders_data()
+        elif task == "process_date_evets_data":
+            process_date_evets_data()
         else:
             print(f"Unrecognized task '{task}'.")  # Updated to handle unrecognized tasks
     else:
