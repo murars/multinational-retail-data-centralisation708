@@ -73,13 +73,21 @@ def process_product_data(s3_uri):
     db_connector = DatabaseConnector()
     db_connector.upload_to_db(df, 'dim_products')
     
+def process_orders_data():
+    db_connector = DatabaseConnector()
+    data_extractor = DataExtractor(db_connector)
+    extracted_data = data_extractor.read_rds_table('orders_table')
+    data_cleaning = DataCleaning()
+    cleaned_data = data_cleaning.clean_orders_data(extracted_data)
+    db_connector.upload_to_db(cleaned_data, 'orders_table')
+    
 def main():
     pdf_link = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"  # Modular PDF link definition
     s3_uri = "s3://data-handling-public/products.csv"
     # Determine which task to run based on command-line arguments
     if len(sys.argv) > 1:
         task = sys.argv[1]
-        if task == "database":
+        if task == "process_user_data":
             process_database_data()
         elif task == "pdf" : 
             # Use the provided PDF link if specified, else use the default
@@ -89,6 +97,8 @@ def main():
             process_store_data()
         elif task == "csv":
             process_product_data(s3_uri)
+        elif task == "process_orders_data":
+            process_orders_data()
         else:
             print(f"Unrecognized task '{task}'.")  # Updated to handle unrecognized tasks
     else:

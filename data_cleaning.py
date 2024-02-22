@@ -119,10 +119,17 @@ class DataCleaning:
         # This removes leading/trailing spaces and any trailing non-numeric characters (like '.' in '77g .')
         df['weight'] = df['weight'].str.strip()  # Remove leading/trailing whitespace
         df['weight'] = df['weight'].str.replace(r'[^\dkgmlKGML]+$', '', regex=True)  # Remove trailing non-numeric/non-unit characters
-        
-        # Handle NaN values across the DataFrame (optional, based on your needs)
-        # For example, you might fill NaNs with a default value or drop rows/columns with too many missing values
-        # df.fillna('DefaultValue', inplace=True) # Or any other handling strategy
         return df
+      
+    @staticmethod
+    def clean_orders_data(df):
+        df.drop(["first_name", "last_name", "1"], axis=1, inplace=True)
+        # axis=1 parameter specifies that pandas should look for these labels in the columns (not rows)
+        
+        df.replace(to_replace=["N/A", "null", "N/a", "n/A", "NULL", "Null"], value=np.nan, inplace=True)
+        # Fill NaN values with "Default Value"
+        df.fillna(value="Default Value", inplace=True)  
+        return df 
+        
     
     

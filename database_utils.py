@@ -40,7 +40,7 @@ class DatabaseConnector:
         # Upload the DataFrame to the specified table in the target database
         df.to_sql(name=table_name, con=target_engine, if_exists='append', index=False)
 
-    # if __name__ == "__main__":
-    # db_connector = DatabaseConnector()
-    # tables = db_connector.list_db_tables()
-    # print("Available tables in the database:", tables)
+# if __name__ == "__main__":
+#     db_connector = DatabaseConnector()
+#     tables = db_connector.list_db_tables()
+#     print("Available tables in the database:", tables)
