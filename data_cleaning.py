@@ -32,7 +32,7 @@ class DataCleaning:
         df['card_number'] = df['card_number'].apply(lambda x: 'Unknown' if '?' in x else x)
         # Safe conversion to numeric, with error handling - python urged us like below;
         #FutureWarning: errors='ignore' is deprecated and will raise in a future version. 
-        for c in ['card_number', 'another_column']:
+        for c in ['card_number']:
             try:
                 df[c] = pd.to_numeric(df[c])
             except ValueError:
