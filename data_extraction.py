@@ -27,9 +27,9 @@ class DataExtractor:
         df = pd.read_sql_table(table_name, self.engine)
         return df
     
-    def retrieve_pdf_data(self, pdf_link):
+    def retrieve_pdf_data(self, data_link):
         # Use tabula to read PDF from the link
-        dfs = read_pdf(pdf_link, pages="all", multiple_tables=True)
+        dfs = read_pdf(data_link, pages="all", multiple_tables=True)
         # Combine all tables into one DataFrame
         df = pd.concat(dfs, ignore_index=True) if len(dfs) > 1 else dfs[0]
         return df
@@ -57,11 +57,11 @@ class DataExtractor:
 
         return pd.DataFrame(stores_data)
     
-    def extract_from_s3(self, s3_uri):
+    def extract_from_s3(self, data_link):
         s3 = boto3.client('s3')
         
         # Dynamically parse the s3_uri to extract bucket name and object key
-        uri_parts = s3_uri.replace("s3://", "").split("/", 1)
+        uri_parts = data_link.replace("s3://", "").split("/", 1)
         bucket_name, object_key = uri_parts[0], uri_parts[1]
         
         # Now using the dynamically determined bucket_name and object_key
@@ -73,12 +73,12 @@ class DataExtractor:
         
         return df
     
-    def extract_json_from_s3(self,json_s3_uri):
+    def extract_json_from_s3(self,data_link):
         # Directly read JSON content into a pandas DataFrame
         # yukardaki gibi bucket_name vs kullanacak yapabilirdin ama https:// verildigi icin ugrasmadik.
         # birde yukaridaki yontemler bunu parcalayamazsin csv deki link formati farkli.bunu notlarina
         # ekle 
-        df = pd.read_json(json_s3_uri)
+        df = pd.read_json(data_link)
         return df
 
         
