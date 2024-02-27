@@ -9,6 +9,6 @@ ALTER TABLE dim_users
   ALTER COLUMN country_code TYPE VARCHAR(50),
   ALTER COLUMN phone_number TYPE VARCHAR(25),
   ALTER COLUMN join_date TYPE DATE,
-  ALTER COLUMN user_uuid TYPE UUID USING (user_uuid::uuid);
+  ALTER COLUMN user_uuid TYPE UUID USING user_uuid::uuid;
  
  
