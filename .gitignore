@@ -5,3 +5,4 @@ db_creds.yaml
 target_db_creds.yaml
 .bash_profile
 .bashrc
+.vscode
