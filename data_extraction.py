@@ -6,11 +6,6 @@ from tabula import read_pdf
 import boto3
 from io import StringIO, BytesIO
 
-""" 
- This class will work as a utility class, in it you will be creating methods that help extract data from different data sources.
- The methods contained will be fit to extract data from a particular data source, these sources will include CSV files, an API and an S3 bucket.
- """
-
 class DataExtractor:
  
     def __init__(self, database_connector=None, api_key=None):
@@ -20,20 +15,14 @@ class DataExtractor:
             self.engine = database_connector.engine 
             
     def read_rds_table(self, table_name):
-        """Extracts the database table to a pandas DataFrame."""
-        # Use Pandas to read the table into a DataFrame
-        # Use tabula.read_pdf() or any other relevant method to extract data from the PDF
-        # For example, assuming read_pdf can directly read from the link:
         df = pd.read_sql_table(table_name, self.engine)
         return df
     
     def retrieve_pdf_data(self, data_link):
-        # Use tabula to read PDF from the link
         dfs = read_pdf(data_link, pages="all", multiple_tables=True)
-        # Combine all tables into one DataFrame
+        # concotanate all pages in pdf 
         df = pd.concat(dfs, ignore_index=True) if len(dfs) > 1 else dfs[0]
         return df
-    # pdf sayfalardan olustugundan tabulayla okuyup sayfalari concotanate etmeliyiz. bunu not al.
     def list_number_of_stores(self):
         headers = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
         endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
@@ -60,11 +49,10 @@ class DataExtractor:
     def extract_from_s3(self, data_link):
         s3 = boto3.client('s3')
         
-        # Dynamically parse the s3_uri to extract bucket name and object key
+        # Do dynamically parse ( not hard-coded )the s3_uri to extract bucket name and object key. 
         uri_parts = data_link.replace("s3://", "").split("/", 1)
         bucket_name, object_key = uri_parts[0], uri_parts[1]
         
-        # Now using the dynamically determined bucket_name and object_key
         response = s3.get_object(Bucket=bucket_name, Key=object_key)
         csv_content = response['Body'].read().decode('utf-8')
         
@@ -75,9 +63,6 @@ class DataExtractor:
     
     def extract_json_from_s3(self,data_link):
         # Directly read JSON content into a pandas DataFrame
-        # yukardaki gibi bucket_name vs kullanacak yapabilirdin ama https:// verildigi icin ugrasmadik.
-        # birde yukaridaki yontemler bunu parcalayamazsin csv deki link formati farkli.bunu notlarina
-        # ekle 
         df = pd.read_json(data_link)
         return df
 

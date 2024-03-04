@@ -5,7 +5,6 @@ class DataCleaning:
    
     @staticmethod
     def clean_user_data(df):
-        # Handle NULL values with a placeholder for demonstration, specific fields might need different handling
         # Replace 'N/A' and similar representations of missing data with NaN
         df.replace(["N/A", "null", "Null", "NULL"], np.nan, inplace=True)
         df = df.fillna(value="Default Value")
@@ -23,23 +22,20 @@ class DataCleaning:
                 
     @staticmethod
     def clean_card_data(df):
-        # Implement cleaning logic here
         df.replace(["NULL", "Null", "null"], np.nan, inplace=True)
         df.fillna('DefaultValue', inplace=True)
         
-        # Example: Replace '?' in card_number with 'Unknown'
+        # Replace '?' in card_number with 'Unknown'
         df['card_number'] = df['card_number'].astype(str)
         df['card_number'] = df['card_number'].apply(lambda x: 'Unknown' if '?' in x else x)
         # Safe conversion to numeric, with error handling - python urged us like below;
-        #FutureWarning: errors='ignore' is deprecated and will raise in a future version. 
+        # FutureWarning: errors='ignore' is deprecated and will raise in a future version. 
         for c in ['card_number']:
             try:
                 df[c] = pd.to_numeric(df[c])
             except ValueError:
-                # Handle the exception, for example, by logging or using a default value
-                # This could also be a place to mark these rows for review or removal
                 print(f"Non-numeric values found in {c}, replacing with NaN")
-                df[c] = pd.to_numeric(df[c], errors='coerce')  # Convert problematic values to NaN
+                df[c] = pd.to_numeric(df[c], errors='coerce')  
                  
         # Convert expiry_date to datetime, assuming format is MM/YY
         df['expiry_date'] = pd.to_datetime(df['expiry_date'], format='%m/%y', errors='coerce')
@@ -52,13 +48,12 @@ class DataCleaning:
         # Handle NULL values with a placeholder for demonstration, specific fields might need different handling
         # Replace 'N/A' and similar representations of missing data with NaN
         df.replace("N/A", np.nan, inplace=True)
-        df.replace("null", np.nan, inplace=True)  # Case sensitive, adjust as needed
+        df.replace("null", np.nan, inplace=True)  
         df = df.fillna(value="Default Value")
         
         # Correct date errors for 'join_date' and 'date_of_birth'
         df['opening_date'] = pd.to_datetime(df['opening_date'], errors='coerce')
        
-        # Ensuring 'phone_number' is treated as string to preserve data integrity
         df['longitude'] = pd.to_numeric(df['longitude'], errors='coerce')
         df['latitude'] = pd.to_numeric(df['latitude'], errors='coerce')  
 
@@ -86,7 +81,7 @@ class DataCleaning:
                     converted_weight = numeric_value / 1000  # Convert to kg
                     return f"{converted_weight}kg"
 
-                # If the unit is already 'kg', no conversion is needed, just return it
+                # If the unit is already 'kg' just return it
                 elif unit.lower() == 'kg':
                     return f"{numeric_value}kg"
 
@@ -101,14 +96,12 @@ class DataCleaning:
     def clean_products_data(df):
      
         df.replace(to_replace=["N/A", "null", "N/a", "n/A", "NULL", "Null"], value=np.nan, inplace=True)
-        # Fill NaN values with "Default Value"
         df.fillna(value="Default Value", inplace=True)
               
         df['product_price'] = df['product_price'].str.replace(r'[^\d.]', '', regex=True)      
         # Handle non-numeric 'product_price': replace non-numeric with NaN
         df['product_price'] = pd.to_numeric(df['product_price'], errors='coerce')
         
-        # Ensure 'date_added' is in correct datetime format (errors convert to NaT)
         df['date_added'] = pd.to_datetime(df['date_added'], errors='coerce')
         
         # Replace known erroneous values in 'category' and 'removed' with NaN
@@ -116,19 +109,16 @@ class DataCleaning:
         df['category'] = df['category'].replace(erroneous_values, np.nan)
         df['removed'] = df['removed'].replace(erroneous_values, np.nan)
         
-        # This removes leading/trailing spaces and any trailing non-numeric characters (like '.' in '77g .')
+        # This removes leading/trailing spaces and any trailing non-numeric characters (like '.' in '77g .' - I checked raw data and found this)
         df['weight'] = df['weight'].str.strip()  # Remove leading/trailing whitespace
         df['weight'] = df['weight'].str.replace(r'[^\dkgmlKGML]+$', '', regex=True)  # Remove trailing non-numeric/non-unit characters
         return df
       
     @staticmethod
     def clean_orders_data(df):
-        df.drop(["first_name", "last_name", "1"], axis=1, inplace=True)
-        # axis=1 parameter specifies that pandas should look for these labels in the columns (not rows)
-        
+        df.drop(["first_name","last_name","1"], axis=1, inplace=True)
+                
         df.replace(to_replace=["N/A", "null", "N/a", "n/A", "NULL", "Null"], value=np.nan, inplace=True)
-        # Fill NaN values with "Default Value"
-        df.fillna(value="Default Value", inplace=True)  
         return df 
     
     @staticmethod
