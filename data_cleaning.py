@@ -113,7 +113,8 @@ class DataCleaning:
         df['weight'] = df['weight'].str.strip()  # Remove leading/trailing whitespace
         df['weight'] = df['weight'].str.replace(r'[^\dkgmlKGML]+$', '', regex=True)  # Remove trailing non-numeric/non-unit characters
         return df
-      
+    
+    # Dropping "first_name","last_name","1" columns  
     @staticmethod
     def clean_orders_data(df):
         df.drop(["first_name","last_name","1"], axis=1, inplace=True)

@@ -10,19 +10,22 @@ class DataExtractor:
  
     def __init__(self, database_connector=None, api_key=None):
         
-        # Assume database_connector is an instance of DatabaseConnector
         if database_connector:
             self.engine = database_connector.engine 
             
+    # Reading a table from RDS
     def read_rds_table(self, table_name):
         df = pd.read_sql_table(table_name, self.engine)
         return df
     
+    # Retrieving PDF data
     def retrieve_pdf_data(self, data_link):
         dfs = read_pdf(data_link, pages="all", multiple_tables=True)
         # concotanate all pages in pdf 
         df = pd.concat(dfs, ignore_index=True) if len(dfs) > 1 else dfs[0]
         return df
+    
+    # Extracting store data via API
     def list_number_of_stores(self):
         headers = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
         endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
@@ -32,6 +35,7 @@ class DataExtractor:
         else:
             raise Exception("Failed to retrieve the number of stores")
     
+    # Extracting store data via API
     def retrieve_stores_data(self):
         number_of_stores = self.list_number_of_stores()
         stores_data = []
@@ -46,6 +50,7 @@ class DataExtractor:
 
         return pd.DataFrame(stores_data)
     
+    # Extracting CSV data from S3
     def extract_from_s3(self, data_link):
         s3 = boto3.client('s3')
         
@@ -61,6 +66,7 @@ class DataExtractor:
         
         return df
     
+    # Extraction JSON data from S3
     def extract_json_from_s3(self,data_link):
         # Directly read JSON content into a pandas DataFrame
         df = pd.read_json(data_link)
